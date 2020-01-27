@@ -1,0 +1,39 @@
+
+
+# get virtual environment
+sudo apt install virtualenv
+# make an environment
+virtualenv cactus_env
+# enter environment
+source cactus_env/bin/activate
+# if your env doesn't use python2.7, link to it
+#virtualenv -p /path-to-your-python2-install/python2.7 cactus_env
+# cactus uses toil to co-ordinate jobs
+pip install --upgrade toil[all]
+
+# errors that will cause problems pulling images from docker (Toil needs python 3 to run them)
+#ERROR: azure-cli-core 2.0.73 has requirement azure-mgmt-resource~=3.1, but you'll have azure-mgmt-resource 1.2.2 which is incompatible.
+#ERROR: google-api-core 0.1.4 has requirement futures>=3.2.0; python_version < "3.2", but you'll have futures 3.1.1 which is incompatible.
+
+
+# get out of the environment
+deactivate
+
+# install singularity
+sudo apt install singularity-container
+
+# clone cactus with git
+git clone git://github.com/ComparativeGenomicsToolkit/cactus.git
+cd cactus
+git pull
+git submodule update --init
+make
+
+# get back into virtual environment
+source ../cactus_env/bin/activate
+
+# from the root of the cactus directory run
+pip install --upgrade .
+
+# run cactus using singularity (from david's email 19/9/19)
+cactus jobStore examples/evolverMammals.txt examples/evolverMammals.hal --root mr  --maxCores 10 --binariesMode singularity
